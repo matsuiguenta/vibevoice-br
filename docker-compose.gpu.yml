@@ -1,0 +1,39 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# VibeVoice BR — Docker Compose GPU Override
+# Uso: docker-compose -f docker-compose.yml -f docker-compose.gpu.yml up -d
+# Requer: NVIDIA Container Toolkit instalado no host
+# ─────────────────────────────────────────────────────────────────────────────
+version: '3.9'
+
+services:
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      VIBEVOICE_DEVICE: cuda
+      WHISPER_DEVICE: cuda
+      WHISPER_COMPUTE_TYPE: float16
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    runtime: nvidia
+
+  worker:
+    environment:
+      VIBEVOICE_DEVICE: cuda
+      WHISPER_DEVICE: cuda
+      WHISPER_COMPUTE_TYPE: float16
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    runtime: nvidia
