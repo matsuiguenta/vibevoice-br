@@ -51,7 +51,7 @@ export default function Footer() {
         </div>
 
         <div className="footer-bottom">
-          <span>© {year} VibeVoice BR. Todos os direitos reservados.</span>
+          <span>© {year} VibeVoice BR. Desenvolvido com ❤ por <strong>Rogério Matsui Guenta</strong> e Inteligência Artificial.</span>
           <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             Powered by{' '}
             <a

@@ -1,6 +1,7 @@
 # VibeVoice BR — Plataforma de IA de Voz em Português Brasileiro
 
-> Síntese de voz expressiva, clonagem de voz e transcrição automática (ASR + Diarização) em Português Brasileiro. Powered by [VibeVoice Community Fork](https://github.com/vibevoice-community/VibeVoice) e [Microsoft VibeASR.cpp](https://github.com/microsoft/VibeASR.cpp).
+> Síntese de voz expressiva, clonagem de voz e transcrição automática (ASR + Diarização) em Português Brasileiro.  
+> Desenvolvido com ❤ por **Rogério Matsui Guenta**. Powered by [VibeVoice Community Fork](https://github.com/vibevoice-community/VibeVoice), [Microsoft VibeASR.cpp](https://github.com/microsoft/VibeASR.cpp) e Inteligência Artificial.
 
 ---
 
@@ -11,9 +12,11 @@
 | **TTS Multi-Speaker** | Até 4 speakers simultâneos, conversações e scripts naturais |
 | **TTS PT-BR** | Vozes treinadas especificamente para o Português Brasileiro |
 | **Voice Cloning** | Clone qualquer voz com 10–30s de áudio de referência |
-| **VibeVoice ASR (VibeASR.cpp)** | Transcrição + Diarização de Locutores ("Quem falou o quê") para reuniões |
+| **VibeVoice ASR (VibeASR.cpp)** | Transcrição + Diarização de Locutores ("Quem falou o quê") para reuniões sem limite de participantes |
+| **Mapeamento de Locutores** | Atribuição interativa dos nomes reais dos participantes (`Locutor 1` ➔ `Prof. Dr. Ricardo`) |
+| **Gerador de ATA Oficial** | Formatação automática de documento de ATA de Reunião para Universidades e Prefeituras |
 | **Whisper ASR** | Transcrição alternativa via `faster-whisper` (CTranslate2) |
-| **Modo Corporativo / SaaS** | Alterne entre Uso Interno da Empresa (100% livre) ou Modo Comercial SaaS |
+| **Modo Corporativo / SaaS** | Alterne no Admin entre Uso Interno da Empresa (100% livre) ou Modo Comercial SaaS |
 | **API REST** | Endpoints documentados com FastAPI e Swagger UI |
 | **Painel Admin** | Gerenciamento completo de usuários, métricas, modelos e configurações |
 
@@ -26,7 +29,7 @@ O VibeVoice BR permite escolher o modo de funcionamento diretamente no **Painel 
 - **🏢 Modo Corporativo (Uso Interno):** `APP_MODE=internal_corporate` e `ENABLE_PLANS=false`
   - Desativa o sistema de cobrança e planos.
   - A página de preços é ocultada da barra de navegação.
-  - Recursos de síntese, transcrição e clonagem ficam **totalmente liberados** para a equipe da empresa.
+  - Recursos de síntese, transcrição, diarização e clonagem ficam **totalmente liberados** para a equipe da empresa.
 - **🌐 Modo Público / SaaS:** `APP_MODE=saas` e `ENABLE_PLANS=true`
   - Ativa controle de créditos e planos (Starter, Basic, Plus).
   - Integração com checkout transparente do Mercado Pago.
@@ -49,8 +52,8 @@ Você pode selecionar o motor ASR desejado no Painel Admin:
 
 ```
 vibevoice-br/
-├── backend/           FastAPI + VibeVoice TTS + VibeVoice ASR + Whisper
-├── frontend/          Next.js 14 — Site, TTS Studio, ASR e Clonagem de Voz
+├── backend/           FastAPI + VibeVoice TTS + VibeVoice ASR + Whisper + ATA Generator
+├── frontend/          Next.js 14 — Site, TTS Studio, ASR, Diarização e Gerador de ATA
 ├── admin/             Next.js 14 — Painel administrativo independente (porta 3001)
 ├── nginx/             Proxy reverso com streaming de áudio e rate limit
 ├── coolify/           Guia de deploy passo a passo no Coolify
@@ -123,7 +126,7 @@ docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d
 
 | Serviço | URL | Descrição |
 |---------|-----|-----------|
-| **Site Principal** | `http://seu-ip` | Studio TTS, ASR e Clonagem |
+| **Site Principal** | `http://seu-ip` | Studio TTS, ASR, Diarização e ATA |
 | **Painel Admin** | `http://seu-ip/admin/` | Gestão e métricas do sistema |
 | **API Docs** | `http://seu-ip/docs` | Swagger UI interativo |
 | **API Backend** | `http://seu-ip:8000` | FastAPI |
@@ -189,6 +192,26 @@ curl -X POST http://localhost:8000/api/asr/transcribe \
   -F "language=pt"
 ```
 
+### Gerar Documento de ATA Oficial
+```bash
+curl -X POST http://localhost:8000/api/asr/generate-ata \
+  -H "Content-Type: application/json" \
+  -d '{
+    "institution_name": "UNIVERSIDADE FEDERAL",
+    "department": "CONSELHO SUPERIOR",
+    "meeting_title": "REUNIÃO ORDINÁRIA",
+    "session_number": "01/2026",
+    "date_str": "08 de Agosto de 2026",
+    "president_name": "Prof. Dr. Carlos Santos",
+    "secretary_name": "Dra. Maria Oliveira",
+    "speaker_mapping": {"Locutor 1": "Prof. Dr. Carlos Santos", "Locutor 2": "Dra. Maria Oliveira"},
+    "segments": [
+      {"start": 0.0, "end": 12.0, "speaker": "Locutor 1", "text": "Declaramos aberta a sessão."},
+      {"start": 13.0, "end": 25.0, "speaker": "Locutor 2", "text": "Leitura da ordem do dia."}
+    ]
+  }'
+```
+
 ### Voice Cloning
 ```bash
 curl -X POST http://localhost:8000/api/tts/clone \
@@ -202,3 +225,7 @@ curl -X POST http://localhost:8000/api/tts/clone \
 ## 📄 Licença e Créditos
 
 Este projeto integra os forks comunitários [VibeVoice](https://github.com/vibevoice-community/VibeVoice) e [VibeASR.cpp](https://github.com/microsoft/VibeASR.cpp). Consulte os repositórios originais para licenças dos modelos.
+
+---
+
+Desenvolvido com ❤ por **Rogério Matsui Guenta** e **Inteligência Artificial**
