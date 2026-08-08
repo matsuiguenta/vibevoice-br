@@ -172,3 +172,91 @@ async def get_transcription_history(
             for j in jobs
         ]
     }
+
+
+# ─── Gerador de ATA Oficial de Reunião ───────────────────────────────────────
+
+class SegmentInput(BaseModel):
+    start: float
+    end: float
+    speaker: str
+    text: str
+
+
+class ATARequest(BaseModel):
+    institution_name: str = "UNIVERSIDADE / PREFEITURA MUNICIPAL"
+    department: str = "DEPARTAMENTO ADMINISTRATIVO / CONSELHO"
+    meeting_title: str = "REUNIÃO ORDINÁRIA"
+    session_number: str = "01/2026"
+    date_str: str = "08 de Agosto de 2026"
+    start_time: str = "14:00"
+    end_time: str = "16:00"
+    location: str = "Sala de Reuniões Principal / Videoconferência"
+    president_name: str = "Presidente da Sessão"
+    secretary_name: str = "Secretário(a) Geral"
+    pauta: str = "1. Abertura dos trabalhos e alinhamento de pauta.\n2. Discussão de projetos e deliberações."
+    speaker_mapping: dict = {}  # {"Locutor 1": "Prof. Dr. João Silva"}
+    segments: List[SegmentInput] = []
+
+
+@router.post("/generate-ata")
+async def generate_ata_document(req: ATARequest):
+    """
+    Gera um documento de ATA OFICIAL de Reunião nos padrões de redação pública/universitária.
+    """
+    # Mapeia nomes dos locutores
+    mapped_speakers = set()
+    formatted_body = []
+
+    for seg in req.segments:
+        spk_raw = seg.speaker.strip()
+        spk_name = req.speaker_mapping.get(spk_raw, spk_raw)
+        mapped_speakers.add(spk_name)
+
+        min_s = int(seg.start // 60)
+        sec_s = int(seg.start % 60)
+        time_tag = f"[{min_s:02d}:{sec_s:02d}]"
+
+        formatted_body.append(f"{time_tag} {spk_name}: {seg.text}")
+
+    attendees_str = ", ".join(sorted(list(mapped_speakers))) if mapped_speakers else "Membros presentes"
+
+    # Template Padrão Oficial de ATA
+    ata_content = f"""================================================================================
+{req.institution_name.upper()}
+{req.department.upper()}
+================================================================================
+
+ATA DA {req.session_number.upper()} {req.meeting_title.upper()}
+
+Às {req.start_time} horas do dia {req.date_str}, reuniu-se na {req.location}, o colegiado sob a presidência do(a) Sr.(a) {req.president_name} e secretariado por {req.secretary_name}, contando com a presença dos seguintes participantes: {attendees_str}.
+
+I. ORDEM DO DIA / PAUTA:
+{req.pauta}
+
+II. REGISTRO CONTÍNUO E TRANSCRIÇÃO DAS DELIBERAÇÕES:
+{" ".join([seg.text for seg in req.segments])}
+
+III. REGISTRO DETALHADO POR LOCUTOR E MARCAÇÃO TEMPORAL:
+{chr(10).join(formatted_body)}
+
+IV. ENCERRAMENTO:
+Nada mais havendo a tratar, o(a) Senhor(a) Presidente encerrou os trabalhos às {req.end_time} horas, da qual eu, {req.secretary_name}, lavrei a presente Ata que, lida e achada conforme, vai assinada por mim e pelo(a) Senhor(a) Presidente.
+
+________________________________________
+{req.president_name}
+Presidente da Sessão
+
+________________________________________
+{req.secretary_name}
+Secretário(a) Geral
+================================================================================
+"""
+
+    return {
+        "status": "success",
+        "title": f"ATA_{req.session_number.replace('/', '_')}",
+        "ata_text": ata_content,
+        "participants": list(mapped_speakers),
+    }
+
