@@ -84,9 +84,19 @@ export default function SettingsPage() {
       ],
     },
     {
-      title: '🎤 Motor Whisper (ASR)',
-      desc: 'Configurações do reconhecimento automático de fala.',
+      title: '🎤 Motor de Transcrição ASR & Diarização',
+      desc: 'Escolha o motor de transcrição e identificação de locutores.',
       fields: [
+        {
+          key: 'ASR_ENGINE_TYPE',
+          label: 'Motor ASR Principal',
+          type: 'select',
+          options: [
+            { val: 'vibe_asr', label: '🔥 VibeVoice ASR (VibeASR.cpp + Diarização de Locutores — Recomendado para Reuniões)' },
+            { val: 'whisper', label: '🎙️ OpenAI Whisper (faster-whisper)' },
+          ],
+          desc: 'VibeVoice ASR identifica simultaneamente Quem (Locutor), Quando (Timestamps) e O que foi dito.',
+        },
         { key: 'WHISPER_MODEL', label: 'Modelo Whisper', type: 'select', options: [
           { val: 'tiny', label: 'tiny (~75MB, mais rápido)' },
           { val: 'base', label: 'base (~145MB)' },

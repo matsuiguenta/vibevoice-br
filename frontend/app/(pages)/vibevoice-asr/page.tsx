@@ -274,11 +274,28 @@ export default function ASRPage() {
               {/* Content */}
               <div className="transcript-box">
                 {activeTab === 'segments' && result.segments?.length > 0 ? (
-                  result.segments.map(seg => (
+                  result.segments.map((seg: any) => (
                     <div key={seg.id} className="transcript-segment">
-                      <span className="transcript-time">
-                        {formatTime(seg.start)} → {formatTime(seg.end)}
-                      </span>
+                      <div>
+                        <span className="transcript-time">
+                          {formatTime(seg.start)} → {formatTime(seg.end)}
+                        </span>
+                        {seg.speaker && (
+                          <div style={{
+                            fontSize: '0.7rem',
+                            fontWeight: 700,
+                            color: 'var(--color-blue-light)',
+                            background: 'rgba(59,130,246,0.12)',
+                            border: '1px solid rgba(59,130,246,0.25)',
+                            padding: '0.15rem 0.5rem',
+                            borderRadius: '100px',
+                            display: 'inline-block',
+                            marginTop: '0.25rem',
+                          }}>
+                            👤 {seg.speaker}
+                          </div>
+                        )}
+                      </div>
                       <span className="transcript-text">{seg.text}</span>
                     </div>
                   ))

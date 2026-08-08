@@ -23,6 +23,10 @@ class Settings(BaseSettings):
     VIBEVOICE_DEVICE: str = "cpu"  # "cpu" or "cuda"
     VIBEVOICE_REPO: str = "vibevoice-community/VibeVoice"
 
+    # ASR Engine Selection: "whisper" or "vibe_asr" (VibeASR.cpp com Diarização)
+    ASR_ENGINE_TYPE: str = "whisper"
+    VIBE_ASR_PATH: str = "/models/vibe_asr_cpp"
+
     # Whisper ASR
     WHISPER_MODEL: str = "large-v3"  # tiny, base, small, medium, large, large-v3
     WHISPER_DEVICE: str = "cpu"

@@ -207,6 +207,7 @@ async def get_model_config(_: User = Depends(get_current_admin)):
             "repo": settings.VIBEVOICE_REPO,
         },
         "whisper": {
+            "engine_type": settings.ASR_ENGINE_TYPE,
             "model": settings.WHISPER_MODEL,
             "device": settings.WHISPER_DEVICE,
             "compute_type": settings.WHISPER_COMPUTE_TYPE,
