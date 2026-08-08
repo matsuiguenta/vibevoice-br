@@ -1,6 +1,6 @@
 # VibeVoice BR — Plataforma de IA de Voz em Português Brasileiro
 
-> Síntese de voz expressiva, clonagem de voz e transcrição automática (ASR) em Português Brasileiro. Powered by [VibeVoice Community Fork](https://github.com/vibevoice-community/VibeVoice).
+> Síntese de voz expressiva, clonagem de voz e transcrição automática (ASR + Diarização) em Português Brasileiro. Powered by [VibeVoice Community Fork](https://github.com/vibevoice-community/VibeVoice) e [Microsoft VibeASR.cpp](https://github.com/microsoft/VibeASR.cpp).
 
 ---
 
@@ -8,12 +8,40 @@
 
 | Recurso | Descrição |
 |---------|-----------|
-| **TTS Multi-Speaker** | Até 4 speakers simultâneos, scripts naturais |
-| **TTS PT-BR** | Vozes treinadas para Português Brasileiro |
-| **Voice Cloning** | Clone qualquer voz com 10–30s de referência |
-| **ASR para Português** | Transcrição com Whisper, 60+ min, PT-BR otimizado |
-| **API REST** | Endpoints documentados com FastAPI |
-| **Painel Admin** | Gerenciamento completo via interface web |
+| **TTS Multi-Speaker** | Até 4 speakers simultâneos, conversações e scripts naturais |
+| **TTS PT-BR** | Vozes treinadas especificamente para o Português Brasileiro |
+| **Voice Cloning** | Clone qualquer voz com 10–30s de áudio de referência |
+| **VibeVoice ASR (VibeASR.cpp)** | Transcrição + Diarização de Locutores ("Quem falou o quê") para reuniões |
+| **Whisper ASR** | Transcrição alternativa via `faster-whisper` (CTranslate2) |
+| **Modo Corporativo / SaaS** | Alterne entre Uso Interno da Empresa (100% livre) ou Modo Comercial SaaS |
+| **API REST** | Endpoints documentados com FastAPI e Swagger UI |
+| **Painel Admin** | Gerenciamento completo de usuários, métricas, modelos e configurações |
+
+---
+
+## 🏢 Modos de Operação (Empresarial vs SaaS)
+
+O VibeVoice BR permite escolher o modo de funcionamento diretamente no **Painel Admin (`/admin/settings`)** ou no `.env`:
+
+- **🏢 Modo Corporativo (Uso Interno):** `APP_MODE=internal_corporate` e `ENABLE_PLANS=false`
+  - Desativa o sistema de cobrança e planos.
+  - A página de preços é ocultada da barra de navegação.
+  - Recursos de síntese, transcrição e clonagem ficam **totalmente liberados** para a equipe da empresa.
+- **🌐 Modo Público / SaaS:** `APP_MODE=saas` e `ENABLE_PLANS=true`
+  - Ativa controle de créditos e planos (Starter, Basic, Plus).
+  - Integração com checkout transparente do Mercado Pago.
+
+---
+
+## 🎙️ Motores de Transcrição ASR
+
+Você pode selecionar o motor ASR desejado no Painel Admin:
+
+1. **🔥 VibeVoice ASR (Microsoft VibeASR.cpp) — Recomendado para Reuniões:**
+   - Realiza transcrição e **Diarização de Locutores simultânea** ("Locutor 1", "Locutor 2"...).
+   - Executa em C++ com quantização BitNet (1,58 GB) de alta eficiência em CPU.
+2. **🎙️ OpenAI Whisper (`faster-whisper`):**
+   - Transcrição rápida de palavras e parágrafos com suporte a múltiplos idiomas.
 
 ---
 
@@ -21,12 +49,13 @@
 
 ```
 vibevoice-br/
-├── backend/           FastAPI + VibeVoice engine + Whisper ASR
-├── frontend/          Next.js 14 — Site e app de usuário
-├── admin/             Next.js 14 — Painel administrativo
-├── nginx/             Proxy reverso
+├── backend/           FastAPI + VibeVoice TTS + VibeVoice ASR + Whisper
+├── frontend/          Next.js 14 — Site, TTS Studio, ASR e Clonagem de Voz
+├── admin/             Next.js 14 — Painel administrativo independente (porta 3001)
+├── nginx/             Proxy reverso com streaming de áudio e rate limit
+├── coolify/           Guia de deploy passo a passo no Coolify
 ├── docker-compose.yml Orquestração CPU (padrão)
-├── docker-compose.gpu.yml Override para GPU
+├── docker-compose.gpu.yml Override para aceleração via GPU NVIDIA
 └── .env.example       Template de configuração
 ```
 
@@ -46,7 +75,7 @@ sudo usermod -aG docker $USER
 ### 2. Clone e Configure
 
 ```bash
-git clone https://github.com/SEU_USUARIO/vibevoice-br.git
+git clone https://github.com/matsuiguenta/vibevoice-br.git
 cd vibevoice-br
 
 # Crie o arquivo .env a partir do template
@@ -56,11 +85,18 @@ cp .env.example .env
 nano .env
 ```
 
-**Configurações mínimas obrigatórias no `.env`:**
+**Configurações recomendadas no `.env`:**
 ```env
 SECRET_KEY=chave-aleatoria-segura-aqui
 POSTGRES_PASSWORD=senha-forte-aqui
 ADMIN_PASSWORD=senha-admin-aqui
+
+# Modo de Funcionamento (internal_corporate = Uso Interno Livre)
+APP_MODE=internal_corporate
+ENABLE_PLANS=false
+
+# Motor ASR (vibe_asr = VibeASR.cpp com Diarização de Reuniões)
+ASR_ENGINE_TYPE=vibe_asr
 ```
 
 ### 3. Inicie os Serviços (CPU)
@@ -87,10 +123,10 @@ docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d
 
 | Serviço | URL | Descrição |
 |---------|-----|-----------|
-| **Site** | `http://seu-ip` | Plataforma de usuário |
-| **Admin** | `http://seu-ip/admin/` | Painel administrativo |
-| **API Docs** | `http://seu-ip/docs` | Swagger UI |
-| **API Backend** | `http://seu-ip:8000` | FastAPI direto |
+| **Site Principal** | `http://seu-ip` | Studio TTS, ASR e Clonagem |
+| **Painel Admin** | `http://seu-ip/admin/` | Gestão e métricas do sistema |
+| **API Docs** | `http://seu-ip/docs` | Swagger UI interativo |
+| **API Backend** | `http://seu-ip:8000` | FastAPI |
 
 **Login Admin padrão:**
 - Email: `admin@vibevoice.com.br`
@@ -100,57 +136,29 @@ docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d
 
 ## 🖥️ Recomendação de Hardware
 
-### CPU-only (Mínimo)
-| Item | Spec |
-|------|------|
-| CPU | 8 vCPUs (x86_64) |
-| RAM | 32 GB |
-| Storage | 100 GB NVMe |
-| OS | Ubuntu 22.04 LTS |
-| **Custo estimado** | ~$40-80/mês |
+### Testes / Desenvolvimento Local
+- **Processador:** Intel Xeon E5-2670 v3 (12C/24T) ou equivalente
+- **RAM:** 16 GB RAM
+- **Storage:** 100 GB SSD
+- **Desempenho:** ~5-15s para clipes curtos em CPU (`int8`)
 
-**Tempo de geração:** ~30–60s por minuto de áudio
+### Produção CPU (Mínimo)
+- **CPU:** 8 vCPUs (x86_64) | **RAM:** 32 GB | **NVMe:** 100 GB | **Custo:** ~$40-80/mês
 
-### Com GPU (Recomendado)
-| Item | Spec |
-|------|------|
-| CPU | 8-16 vCPUs |
-| RAM | 64 GB |
-| GPU | NVIDIA RTX 4090 (24GB) ou A10G |
-| Storage | 200 GB NVMe |
-| OS | Ubuntu 22.04 + CUDA 12.x |
-| **Custo estimado** | $150-400/mês |
-
-**Tempo de geração:** ~3–8s por minuto de áudio
-
-### Produção (Alta Disponibilidade)
-| Item | Spec |
-|------|------|
-| CPU | 16+ vCPUs |
-| RAM | 128 GB |
-| GPU | 2x RTX 4090 ou A100 |
-| Storage | 500 GB NVMe + S3 |
-| **Custo estimado** | $400+/mês |
+### Produção GPU (Recomendado)
+- **CPU:** 8-16 vCPUs | **RAM:** 64 GB | **GPU:** NVIDIA RTX 4090 (24GB) ou A10G | **NVMe:** 200 GB | **Custo:** ~$150-350/mês
 
 ---
 
 ## 🐳 Deploy no Coolify
 
-Veja o guia completo em [`coolify/README.md`](./coolify/README.md)
-
-**Resumo:**
-1. Conecte seu repositório Git ao Coolify
-2. Configure como **Docker Compose** deployment
-3. Adicione as variáveis de ambiente
-4. Aponte o domínio para os serviços
-5. Deploy!
+Veja o guia detalhado em [`coolify/README.md`](./coolify/README.md)
 
 ---
 
 ## 📡 API Reference
 
 ### TTS — Gerar Áudio
-
 ```bash
 curl -X POST http://localhost:8000/api/tts/generate \
   -H "Content-Type: application/json" \
@@ -162,7 +170,6 @@ curl -X POST http://localhost:8000/api/tts/generate \
 ```
 
 ### TTS Multi-Speaker
-
 ```bash
 curl -X POST http://localhost:8000/api/tts/multi-speaker \
   -H "Content-Type: application/json" \
@@ -175,16 +182,14 @@ curl -X POST http://localhost:8000/api/tts/multi-speaker \
   }'
 ```
 
-### ASR — Transcrever Áudio
-
+### ASR com Diarização de Reunião
 ```bash
 curl -X POST http://localhost:8000/api/asr/transcribe \
-  -F "file=@meu_audio.mp3" \
+  -F "file=@reuniao_equipe.mp3" \
   -F "language=pt"
 ```
 
 ### Voice Cloning
-
 ```bash
 curl -X POST http://localhost:8000/api/tts/clone \
   -F "reference_file=@voz_referencia.wav" \
@@ -194,95 +199,6 @@ curl -X POST http://localhost:8000/api/tts/clone \
 
 ---
 
-## 🔧 Vozes Disponíveis (PT-BR)
+## 📄 Licença e Créditos
 
-| ID | Nome | Gênero | Estilo |
-|----|------|--------|--------|
-| `ana_pt` | Ana | Feminino | Natural |
-| `pedro_pt` | Pedro | Masculino | Natural |
-| `lucia_pt` | Lúcia | Feminino | Calorosa |
-| `carlos_pt` | Carlos | Masculino | Profissional |
-| `maria_pt` | Maria | Feminino | Expressiva |
-| `joao_pt` | João | Masculino | Casual |
-
----
-
-## 🔑 Comandos Úteis
-
-```bash
-# Ver logs de todos os serviços
-docker compose logs -f
-
-# Reiniciar apenas o backend
-docker compose restart backend
-
-# Ver status dos serviços
-docker compose ps
-
-# Executar migrations do banco
-docker compose exec backend alembic upgrade head
-
-# Acessar o banco de dados
-docker compose exec postgres psql -U vibevoice vibevoice
-
-# Backup do banco
-docker compose exec postgres pg_dump -U vibevoice vibevoice > backup.sql
-
-# Atualizar para nova versão
-git pull
-docker compose build --no-cache
-docker compose up -d
-```
-
----
-
-## 📂 Gerenciamento de Modelos
-
-O modelo VibeVoice é baixado automaticamente durante o build. Para usar um modelo local:
-
-```bash
-# Monte o diretório de modelos
-docker compose exec backend ls /models/
-
-# O VibeVoice é clonado em:
-/models/vibevoice_src/
-
-# Os pesos do modelo ficam em:
-/models/vibevoice/
-```
-
----
-
-## 🐛 Troubleshooting
-
-**Backend não inicia:**
-```bash
-docker compose logs backend
-# Verifique se DATABASE_URL está correto
-```
-
-**Modelo não carrega (modo demo):**
-```bash
-# O sistema roda em modo demo sem os pesos do VibeVoice
-# Para instalar o modelo completo:
-docker compose exec backend python -c "from huggingface_hub import snapshot_download; snapshot_download('vibevoice-community/VibeVoice', local_dir='/models/vibevoice')"
-```
-
-**CUDA out of memory:**
-```bash
-# Reduza o modelo Whisper no .env:
-WHISPER_MODEL=medium
-# Ou use CPU:
-WHISPER_DEVICE=cpu
-```
-
-**Erro de permissão no /data:**
-```bash
-sudo chown -R 1001:1001 ./data
-```
-
----
-
-## 📄 Licença
-
-Este projeto usa o fork comunitário do VibeVoice. Consulte a licença do [repositório original](https://github.com/vibevoice-community/VibeVoice) para termos de uso dos modelos.
+Este projeto integra os forks comunitários [VibeVoice](https://github.com/vibevoice-community/VibeVoice) e [VibeASR.cpp](https://github.com/microsoft/VibeASR.cpp). Consulte os repositórios originais para licenças dos modelos.
