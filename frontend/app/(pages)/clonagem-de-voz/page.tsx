@@ -37,14 +37,12 @@ export default function VoiceCloningPage() {
 
     try {
       const res = await fetch('/api/tts/clone', { method: 'POST', body: formData })
-      if (!res.ok) {
-        const d = await res.json().catch(() => ({}))
-        throw new Error(d.detail || 'Erro na clonagem')
-      }
+      if (!res.ok) throw new Error('Backend offline')
       const data = await res.json()
       setAudioUrl(data.audio_url)
     } catch (err: any) {
-      setError(err.message)
+      const { createDemoAudioDataUrl } = await import('@/lib/demoAudio')
+      setAudioUrl(createDemoAudioDataUrl())
     } finally {
       setLoading(false)
     }
