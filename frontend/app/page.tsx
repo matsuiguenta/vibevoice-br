@@ -81,7 +81,7 @@ export default function HomePage() {
       </section>
 
       {/* ── Stats ── */}
-      <section style={{ padding: '3rem 0', background: 'rgba(15,22,41,0.5)', borderTop: '1px solid var(--color-border)', borderBottom: '1px solid var(--color-border)' }}>
+      <section style={{ padding: '3rem 0', background: 'var(--color-bg-secondary)', borderTop: '1px solid var(--color-border)', borderBottom: '1px solid var(--color-border)' }}>
         <div className="container">
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '2rem', textAlign: 'center' }}>
             {STATS.map(stat => (

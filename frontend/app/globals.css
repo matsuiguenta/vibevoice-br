@@ -96,6 +96,35 @@ html[data-theme='light'] {
   }
 }
 
+/* ─── Light Mode Component Background Overrides ───────────────────── */
+html[data-theme='light'] .navbar {
+  background: rgba(255, 255, 255, 0.85);
+}
+html[data-theme='light'] .navbar.scrolled {
+  background: rgba(255, 255, 255, 0.95);
+}
+html[data-theme='light'] .speaker-panel {
+  background: #f8fafc;
+}
+html[data-theme='light'] .studio-tip {
+  background: #f1f5f9;
+}
+
+@media (prefers-color-scheme: light) {
+  html[data-theme='auto'] .navbar {
+    background: rgba(255, 255, 255, 0.85);
+  }
+  html[data-theme='auto'] .navbar.scrolled {
+    background: rgba(255, 255, 255, 0.95);
+  }
+  html[data-theme='auto'] .speaker-panel {
+    background: #f8fafc;
+  }
+  html[data-theme='auto'] .studio-tip {
+    background: #f1f5f9;
+  }
+}
+
 /* ─── Reset & Base ───────────────────────────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
