@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import ThemeToggle from '@/components/ThemeToggle'
 
 const navLinks = [
   { href: '/vibevoice', label: 'VibeVoice TTS' },
@@ -122,7 +123,8 @@ export default function NavBar() {
         </ul>
 
         {/* Actions */}
-        <div className="navbar-actions">
+        <div className="navbar-actions" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <ThemeToggle />
           <Link href="/login" className="btn btn-secondary btn-sm">
             Entrar
           </Link>
