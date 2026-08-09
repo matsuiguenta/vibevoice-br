@@ -69,6 +69,10 @@ export default function TTSStudio({ defaultLanguage = 'pt-BR' }: TTSStudioProps)
   const [currentTime, setCurrentTime] = useState(0)
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
+  // Voice Preview Player State
+  const [playingPreviewId, setPlayingPreviewId] = useState<string | null>(null)
+  const previewAudioObjRef = useRef<HTMLAudioElement | null>(null)
+
   // Upload & Record State
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const [isRecordingModalOpen, setIsRecordingModalOpen] = useState(false)
@@ -133,6 +137,70 @@ export default function TTSStudio({ defaultLanguage = 'pt-BR' }: TTSStudioProps)
       localStorage.setItem('vibevoice_custom_voices', JSON.stringify(updated))
     } catch (e) {
       console.error(e)
+    }
+  }
+
+  // ─── Voice Preview Player ──────────────────────────────────────────────────
+  const playVoicePreview = (e: React.MouseEvent, voice: VoiceItem) => {
+    e.stopPropagation()
+
+    if (playingPreviewId === voice.id) {
+      if (typeof window !== 'undefined' && window.speechSynthesis) {
+        window.speechSynthesis.cancel()
+      }
+      if (previewAudioObjRef.current) {
+        previewAudioObjRef.current.pause()
+      }
+      setPlayingPreviewId(null)
+      return
+    }
+
+    setPlayingPreviewId(voice.id)
+
+    // Stop any existing speech synthesis or audio
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.cancel()
+    }
+    if (previewAudioObjRef.current) {
+      previewAudioObjRef.current.pause()
+    }
+
+    if (voice.audioUrl) {
+      const tempAudio = new Audio(voice.audioUrl)
+      previewAudioObjRef.current = tempAudio
+      tempAudio.onended = () => setPlayingPreviewId(null)
+      tempAudio.play().catch(() => setPlayingPreviewId(null))
+      return
+    }
+
+    // Web Speech API / Synthetic Voice Preview
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      const phrases: Record<string, string> = {
+        ana_pt: 'Olá! Eu sou a Ana. Seja bem-vindo à síntese de voz VibeVoice BR.',
+        pedro_pt: 'Olá! Eu sou o Pedro. É um prazer demonstrar minha voz no VibeVoice.',
+        lucia_pt: 'Olá! Eu sou a Lúcia. Síntese de voz expressiva com qualidade profissional.',
+        carlos_pt: 'Olá! Eu sou o Carlos. Voz natural e autêntica para seus projetos.',
+        maria_pt: 'Olá! Eu sou a Maria. Pronta para narrar seus vídeos e podcasts.',
+        joao_pt: 'Olá! Eu sou o João. Excelente para conversações e áudios longos.',
+        maya_en: 'Hi there! I am Maya, speaking with VibeVoice AI speech synthesis.',
+        carter_en: 'Hello! I am Carter. High quality text to speech voice for podcasts.',
+        alice_en: 'Hi! I am Alice. Great for your English digital content.',
+        frank_en: 'Hello! I am Frank. Expressive AI voice cloning technology.',
+        sofia_es: '¡Hola! Soy Sofía. Síntesis de voz expresiva en español.',
+        miguel_es: '¡Hola! Soy Miguel. Excelente calidad de voz para tus proyectos.',
+      }
+
+      const textToSpeak = phrases[voice.id] || `Olá! Esta é uma demonstração da voz ${voice.name}.`
+      const utterance = new SpeechSynthesisUtterance(textToSpeak)
+      utterance.lang = voice.language === 'pt-BR' ? 'pt-BR' : voice.language === 'en-US' ? 'en-US' : 'es-ES'
+      utterance.rate = 1.0
+      utterance.pitch = voice.gender === 'female' ? 1.1 : 0.95
+      utterance.onend = () => setPlayingPreviewId(null)
+      utterance.onerror = () => setPlayingPreviewId(null)
+
+      window.speechSynthesis.speak(utterance)
+    } else {
+      setTimeout(() => setPlayingPreviewId(null), 2500)
     }
   }
 
@@ -339,7 +407,6 @@ export default function TTSStudio({ defaultLanguage = 'pt-BR' }: TTSStudioProps)
 
   const isMultiSpeaker = text.includes('Falante 2:') || text.includes('Speaker 2:')
 
-  // Current voice list depending on tab
   const currentVoicesList = activeLang === 'custom'
     ? customVoices
     : PRESET_VOICES[activeLang] || []
@@ -395,6 +462,33 @@ export default function TTSStudio({ defaultLanguage = 'pt-BR' }: TTSStudioProps)
                       <span className="speaker-name">{slot + 1}. {spk.name}</span>
                       <span className="speaker-lang">{spk.isCustom ? '⭐ Clonada' : spk.language}</span>
                       <div className="speaker-actions">
+                        <button
+                          type="button"
+                          className="icon-btn"
+                          title={playingPreviewId === spk.voiceId ? 'Pausar preview' : 'Ouvir preview da voz'}
+                          onClick={(e) => playVoicePreview(e, {
+                            id: spk.voiceId,
+                            name: spk.name,
+                            language: spk.language,
+                            gender: 'custom',
+                            isCustom: spk.isCustom,
+                            audioUrl: spk.audioUrl
+                          })}
+                          style={{
+                            color: playingPreviewId === spk.voiceId ? 'var(--color-blue-light)' : 'var(--color-text-muted)',
+                          }}
+                        >
+                          {playingPreviewId === spk.voiceId ? (
+                            <svg width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
+                              <rect x="3" y="2" width="3.5" height="12" rx="1"/>
+                              <rect x="9.5" y="2" width="3.5" height="12" rx="1"/>
+                            </svg>
+                          ) : (
+                            <svg width="12" height="12" fill="currentColor" viewBox="0 0 12 12">
+                              <path d="M3 2.5l6 3.5-6 3.5V2.5z"/>
+                            </svg>
+                          )}
+                        </button>
                         <button className="icon-btn" title="Remover" onClick={() => removeSpeaker(slot)}>
                           <svg width="12" height="12" fill="currentColor" viewBox="0 0 12 12">
                             <path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
@@ -465,6 +559,7 @@ export default function TTSStudio({ defaultLanguage = 'pt-BR' }: TTSStudioProps)
 
                 {currentVoicesList.map((voice, i) => {
                   const isAdded = speakers.some(s => s.voiceId === voice.id)
+                  const isPreviewPlaying = playingPreviewId === voice.id
                   return (
                     <div
                       key={voice.id}
@@ -487,8 +582,35 @@ export default function TTSStudio({ defaultLanguage = 'pt-BR' }: TTSStudioProps)
                         )}
                       </div>
 
+                      {/* Play Preview Button */}
+                      <button
+                        type="button"
+                        className="icon-btn"
+                        title={isPreviewPlaying ? 'Pausar demonstração' : 'Ouvir demonstração da voz'}
+                        onClick={(e) => playVoicePreview(e, voice)}
+                        style={{
+                          color: isPreviewPlaying ? 'var(--color-blue-light)' : 'var(--color-text-muted)',
+                          background: isPreviewPlaying ? 'rgba(59, 130, 246, 0.15)' : 'transparent',
+                          borderRadius: '50%',
+                          width: 26,
+                          height: 26,
+                        }}
+                      >
+                        {isPreviewPlaying ? (
+                          <svg width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
+                            <rect x="3" y="2" width="3.5" height="12" rx="1"/>
+                            <rect x="9.5" y="2" width="3.5" height="12" rx="1"/>
+                          </svg>
+                        ) : (
+                          <svg width="12" height="12" fill="currentColor" viewBox="0 0 12 12">
+                            <path d="M3 2.5l6 3.5-6 3.5V2.5z"/>
+                          </svg>
+                        )}
+                      </button>
+
                       {voice.isCustom && (
                         <button
+                          type="button"
                           className="icon-btn"
                           title="Excluir voz clonada"
                           onClick={(e) => {
