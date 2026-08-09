@@ -71,6 +71,7 @@ export default function TTSStudio({ defaultLanguage = 'pt-BR' }: TTSStudioProps)
 
   // Voice Preview Player State
   const [playingPreviewId, setPlayingPreviewId] = useState<string | null>(null)
+  const activeVoiceIdRef = useRef<string | null>(null)
   const previewAudioObjRef = useRef<HTMLAudioElement | null>(null)
 
   // Upload & Record State
@@ -145,6 +146,7 @@ export default function TTSStudio({ defaultLanguage = 'pt-BR' }: TTSStudioProps)
     e.stopPropagation()
 
     if (playingPreviewId === voice.id) {
+      activeVoiceIdRef.current = null
       if (typeof window !== 'undefined' && window.speechSynthesis) {
         window.speechSynthesis.cancel()
       }
@@ -155,21 +157,32 @@ export default function TTSStudio({ defaultLanguage = 'pt-BR' }: TTSStudioProps)
       return
     }
 
+    activeVoiceIdRef.current = voice.id
     setPlayingPreviewId(voice.id)
 
     // Stop any existing speech synthesis or audio
-    if (typeof window !== 'undefined' && window.speechSynthesis) {
-      window.speechSynthesis.cancel()
-    }
     if (previewAudioObjRef.current) {
       previewAudioObjRef.current.pause()
+    }
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.cancel()
     }
 
     if (voice.audioUrl) {
       const tempAudio = new Audio(voice.audioUrl)
       previewAudioObjRef.current = tempAudio
-      tempAudio.onended = () => setPlayingPreviewId(null)
-      tempAudio.play().catch(() => setPlayingPreviewId(null))
+      tempAudio.onended = () => {
+        if (activeVoiceIdRef.current === voice.id) {
+          activeVoiceIdRef.current = null
+          setPlayingPreviewId(null)
+        }
+      }
+      tempAudio.play().catch(() => {
+        if (activeVoiceIdRef.current === voice.id) {
+          activeVoiceIdRef.current = null
+          setPlayingPreviewId(null)
+        }
+      })
       return
     }
 
@@ -195,12 +208,27 @@ export default function TTSStudio({ defaultLanguage = 'pt-BR' }: TTSStudioProps)
       utterance.lang = voice.language === 'pt-BR' ? 'pt-BR' : voice.language === 'en-US' ? 'en-US' : 'es-ES'
       utterance.rate = 1.0
       utterance.pitch = voice.gender === 'female' ? 1.1 : 0.95
-      utterance.onend = () => setPlayingPreviewId(null)
-      utterance.onerror = () => setPlayingPreviewId(null)
+      utterance.onend = () => {
+        if (activeVoiceIdRef.current === voice.id) {
+          activeVoiceIdRef.current = null
+          setPlayingPreviewId(null)
+        }
+      }
+      utterance.onerror = () => {
+        if (activeVoiceIdRef.current === voice.id) {
+          activeVoiceIdRef.current = null
+          setPlayingPreviewId(null)
+        }
+      }
 
       window.speechSynthesis.speak(utterance)
     } else {
-      setTimeout(() => setPlayingPreviewId(null), 2500)
+      setTimeout(() => {
+        if (activeVoiceIdRef.current === voice.id) {
+          activeVoiceIdRef.current = null
+          setPlayingPreviewId(null)
+        }
+      }, 2500)
     }
   }
 
