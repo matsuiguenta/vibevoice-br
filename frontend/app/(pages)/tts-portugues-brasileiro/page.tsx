@@ -25,7 +25,7 @@ export default function TTSPortuguesPage() {
         <div className="container">
           <span className="page-eyebrow">TEXT TO SPEECH PT-BR</span>
           <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: 900, marginBottom: '1rem' }}>
-            🇧🇷 Text to Speech Português Brasileiro
+            Text to Speech Português Brasileiro
           </h1>
           <p style={{ color: 'var(--color-text-secondary)', maxWidth: '650px', margin: '0 auto 2rem' }}>
             Vozes de IA treinadas especialmente para o Português Brasileiro com entonação, prosódia e naturalidade autênticas. Converta qualquer texto em fala de alta qualidade.

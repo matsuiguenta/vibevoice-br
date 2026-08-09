@@ -189,13 +189,13 @@ export default function TTSStudio({ defaultLanguage = 'pt-BR' }: TTSStudioProps)
     // Web Speech API / Synthetic Voice Preview
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       const phrases: Record<string, string> = {
-        ana_pt: 'Olá! Eu sou a Ana. Seja bem-vindo à síntese de voz VibeVoice BR.',
-        pedro_pt: 'Olá! Eu sou o Pedro. É um prazer demonstrar minha voz no VibeVoice.',
+        ana_pt: 'Olá! Eu sou a Ana. Seja bem-vindo à síntese de voz VaibeVoice BR.',
+        pedro_pt: 'Olá! Eu sou o Pedro. É um prazer demonstrar minha voz no VaibeVoice.',
         lucia_pt: 'Olá! Eu sou a Lúcia. Síntese de voz expressiva com qualidade profissional.',
         carlos_pt: 'Olá! Eu sou o Carlos. Voz natural e autêntica para seus projetos.',
         maria_pt: 'Olá! Eu sou a Maria. Pronta para narrar seus vídeos e podcasts.',
         joao_pt: 'Olá! Eu sou o João. Excelente para conversações e áudios longos.',
-        maya_en: 'Hi there! I am Maya, speaking with VibeVoice AI speech synthesis.',
+        maya_en: 'Hi there! I am Maya, speaking with VaibeVoice AI speech synthesis.',
         carter_en: 'Hello! I am Carter. High quality text to speech voice for podcasts.',
         alice_en: 'Hi! I am Alice. Great for your English digital content.',
         frank_en: 'Hello! I am Frank. Expressive AI voice cloning technology.',
@@ -345,7 +345,7 @@ export default function TTSStudio({ defaultLanguage = 'pt-BR' }: TTSStudioProps)
 
       for (const line of lines) {
         const match = line.match(/^Falante\s+(\d+):\s*(.+)/i) ||
-                      line.match(/^Speaker\s+(\d+):\s*(.+)/i)
+          line.match(/^Speaker\s+(\d+):\s*(.+)/i)
         if (match) {
           const speakerIdx = parseInt(match[1]) - 1
           const spk = speakers[speakerIdx] || speakers[0]
@@ -508,18 +508,18 @@ export default function TTSStudio({ defaultLanguage = 'pt-BR' }: TTSStudioProps)
                         >
                           {playingPreviewId === spk.voiceId ? (
                             <svg width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
-                              <rect x="3" y="2" width="3.5" height="12" rx="1"/>
-                              <rect x="9.5" y="2" width="3.5" height="12" rx="1"/>
+                              <rect x="3" y="2" width="3.5" height="12" rx="1" />
+                              <rect x="9.5" y="2" width="3.5" height="12" rx="1" />
                             </svg>
                           ) : (
                             <svg width="12" height="12" fill="currentColor" viewBox="0 0 12 12">
-                              <path d="M3 2.5l6 3.5-6 3.5V2.5z"/>
+                              <path d="M3 2.5l6 3.5-6 3.5V2.5z" />
                             </svg>
                           )}
                         </button>
                         <button className="icon-btn" title="Remover" onClick={() => removeSpeaker(slot)}>
                           <svg width="12" height="12" fill="currentColor" viewBox="0 0 12 12">
-                            <path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                            <path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                           </svg>
                         </button>
                       </div>
@@ -626,12 +626,12 @@ export default function TTSStudio({ defaultLanguage = 'pt-BR' }: TTSStudioProps)
                       >
                         {isPreviewPlaying ? (
                           <svg width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
-                            <rect x="3" y="2" width="3.5" height="12" rx="1"/>
-                            <rect x="9.5" y="2" width="3.5" height="12" rx="1"/>
+                            <rect x="3" y="2" width="3.5" height="12" rx="1" />
+                            <rect x="9.5" y="2" width="3.5" height="12" rx="1" />
                           </svg>
                         ) : (
                           <svg width="12" height="12" fill="currentColor" viewBox="0 0 12 12">
-                            <path d="M3 2.5l6 3.5-6 3.5V2.5z"/>
+                            <path d="M3 2.5l6 3.5-6 3.5V2.5z" />
                           </svg>
                         )}
                       </button>
@@ -684,7 +684,7 @@ export default function TTSStudio({ defaultLanguage = 'pt-BR' }: TTSStudioProps)
             >
               {generating ? <span className="spinner" /> : (
                 <svg width="16" height="16" fill="none" viewBox="0 0 16 16">
-                  <path d="M2 8l5 5 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M2 8l5 5 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               )}
               {isMultiSpeaker ? 'Gerar Multi-Speaker' : 'Gerar Áudio'}
@@ -723,12 +723,12 @@ export default function TTSStudio({ defaultLanguage = 'pt-BR' }: TTSStudioProps)
             >
               {isPlaying ? (
                 <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                  <rect x="3" y="2" width="3.5" height="12" rx="1"/>
-                  <rect x="9.5" y="2" width="3.5" height="12" rx="1"/>
+                  <rect x="3" y="2" width="3.5" height="12" rx="1" />
+                  <rect x="9.5" y="2" width="3.5" height="12" rx="1" />
                 </svg>
               ) : (
                 <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                  <path d="M4 2.5l9 5.5-9 5.5V2.5z"/>
+                  <path d="M4 2.5l9 5.5-9 5.5V2.5z" />
                 </svg>
               )}
             </button>
@@ -755,7 +755,7 @@ export default function TTSStudio({ defaultLanguage = 'pt-BR' }: TTSStudioProps)
               style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}
             >
               <svg width="14" height="14" fill="none" viewBox="0 0 14 14">
-                <path d="M7 2v7M4 6l3 3 3-3M2 11h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M7 2v7M4 6l3 3 3-3M2 11h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               Baixar
             </a>
