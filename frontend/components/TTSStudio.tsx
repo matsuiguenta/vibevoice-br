@@ -412,7 +412,7 @@ export default function TTSStudio({ defaultLanguage = 'pt-BR' }: TTSStudioProps)
     : PRESET_VOICES[activeLang] || []
 
   return (
-    <div className="container" style={{ maxWidth: '1100px' }}>
+    <div className="container" style={{ maxWidth: '1280px' }}>
       {/* Hidden File Input for Voice Upload */}
       <input
         type="file"

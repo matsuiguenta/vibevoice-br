@@ -169,7 +169,7 @@ a:hover { color: var(--color-blue); }
 
 /* ─── Layout ─────────────────────────────────────────────────────── */
 .container {
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
   padding: 0 1.5rem;
 }
@@ -407,7 +407,7 @@ a:hover { color: var(--color-blue); }
 
 .hero-content {
   text-align: center;
-  max-width: 800px;
+  max-width: 1000px;
   padding: 0 1.5rem;
   margin-bottom: 2.5rem;
 }
@@ -441,7 +441,7 @@ a:hover { color: var(--color-blue); }
 /* ─── TTS Studio (App principal) ──────────────────────────────────── */
 .studio-container {
   width: 100%;
-  max-width: 1100px;
+  max-width: 1280px;
   margin: 0 auto;
   padding: 0 1rem 3rem;
 }
