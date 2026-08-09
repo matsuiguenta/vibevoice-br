@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import NavBar from '@/components/NavBar'
 import TTSStudio from '@/components/TTSStudio'
+import FAQSection from '@/components/FAQSection'
 import Footer from '@/components/Footer'
 
 export const metadata: Metadata = {
@@ -172,7 +173,8 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-      </section>
+      {/* ── FAQ ── */}
+      <FAQSection />
 
       {/* ── CTA ── */}
       <section className="section" style={{ textAlign: 'center' }}>

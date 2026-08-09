@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import NavBar from '@/components/NavBar'
+import FAQSection from '@/components/FAQSection'
 import Footer from '@/components/Footer'
 
 const PLANS = [
@@ -187,30 +188,7 @@ export default function PricingPage() {
       )}
 
       {/* FAQ */}
-      <section className="section">
-        <div className="container" style={{ maxWidth: '700px' }}>
-          <h2 style={{ textAlign: 'center', marginBottom: '2.5rem', fontSize: '1.5rem' }}>Perguntas Frequentes</h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {FAQ.map(item => (
-              <details
-                key={item.q}
-                className="card"
-                style={{ cursor: 'pointer', userSelect: 'none' }}
-              >
-                <summary style={{ fontWeight: 600, fontSize: '0.95rem', color: 'var(--color-text)', listStyle: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  {item.q}
-                  <svg width="16" height="16" fill="none" viewBox="0 0 16 16" style={{ flexShrink: 0, color: 'var(--color-blue-light)' }}>
-                    <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                  </svg>
-                </summary>
-                <p style={{ marginTop: '0.875rem', fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
-                  {item.a}
-                </p>
-              </details>
-            ))}
-          </div>
-        </div>
-      </section>
+      <FAQSection />
 
       <Footer />
     </>

@@ -79,7 +79,6 @@ export default function TTSStudio({ defaultLanguage = 'pt-BR' }: TTSStudioProps)
     setProgress(10)
 
     try {
-      // Build multi-speaker script from text
       const lines = text.split('\n').filter(l => l.trim())
       const script: { speaker: string; text: string }[] = []
 
@@ -97,26 +96,25 @@ export default function TTSStudio({ defaultLanguage = 'pt-BR' }: TTSStudioProps)
 
       setProgress(30)
 
-      try {
-        const res = await fetch('/api/tts/multi-speaker', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ script, language: activeLang === 'pt-BR' ? 'pt' : activeLang.toLowerCase() }),
-        })
-        setProgress(80)
+      const res = await fetch('/api/tts/multi-speaker', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ script, language: activeLang === 'pt-BR' ? 'pt' : activeLang.toLowerCase() }),
+      })
+      setProgress(80)
 
-        if (!res.ok) throw new Error('Backend offline')
-        const data = await res.json()
-        setAudioUrl(data.audio_url)
-      } catch (err: any) {
-        // Fallback gracioso para Modo Demo Standalone
-        const { createDemoAudioDataUrl } = await import('@/lib/demoAudio')
-        setAudioUrl(createDemoAudioDataUrl())
-      } finally {
-        setProgress(100)
-        setGenerating(false)
-      }
+      if (!res.ok) throw new Error('Backend offline')
+      const data = await res.json()
+      setAudioUrl(data.audio_url)
+    } catch (err: any) {
+      // Fallback gracioso para Modo Demo Standalone
+      const { createDemoAudioDataUrl } = await import('@/lib/demoAudio')
+      setAudioUrl(createDemoAudioDataUrl())
+    } finally {
+      setProgress(100)
+      setGenerating(false)
     }
+  }
 
   const handleSingleTTS = async () => {
     if (!text.trim()) return
